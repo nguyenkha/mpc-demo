@@ -22,6 +22,12 @@ Operation.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  details: {
+    type: DataTypes.TEXT,
+  },
+  signature: {
+    type: DataTypes.BLOB,
+  },
   context: {
     type: DataTypes.BLOB,
   },

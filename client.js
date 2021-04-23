@@ -5,7 +5,7 @@ const ec = new EC('secp256k1');
 const Signature = require('elliptic/lib/elliptic/ec/signature');
 
 const { API_URL } = process.env;
-const PEER = 1;
+const PEER = 2;
 
 (async function () {
   console.log('Create new key');
@@ -39,8 +39,18 @@ const PEER = 1;
   console.log(operation);
 
   let publicKey, share, input;
+  
+  input = Buffer.from(operation.message, 'base64');
   for (;;) {
     const output = context.step(input);
+
+    if (operation.status === 'done') {
+      publicKey = context.getPublicKey();
+      share = context.getNewShare();
+      console.log('Public key:', publicKey.toString('hex').toUpperCase());
+      break;
+    }
+
     console.log('Send MPC data to server');
     res = await fetch(`${API_URL}/keys/${key.id}/operations/${operation.id}`, {
       method: 'PUT',
@@ -50,13 +60,6 @@ const PEER = 1;
       headers: { 'Content-Type': 'application/json' },
     });
     operation = await res.json();
-    // console.log(operation);
-    if (operation.status === 'done') {
-      publicKey = context.getPublicKey();
-      share = context.getNewShare();
-      console.log('Public key:', publicKey.toString('hex').toUpperCase());
-      break;
-    }
     input = Buffer.from(operation.message, 'base64');
   }
 
@@ -77,9 +80,20 @@ const PEER = 1;
   operation = await res.json();
   console.log(operation);
 
-  let signature;
+  input = Buffer.from(operation.message, 'base64');
+
   for (;;) {
     const output = context.step(input);
+
+    if (operation.status === 'done') {
+      res = await fetch(`${API_URL}/keys/${key.id}/operations/${operation.id}/signature`);
+      const { signature } = await res.json();
+      console.log('Signature:', signature.toUpperCase());
+      const ecKey = ec.keyFromPublic(publicKey.slice(23));
+      console.log('Verify signature:', ecKey.verify(data, new Signature(Buffer.from(signature, 'hex'))));
+      break;
+    }
+
     console.log('Send MPC data to server');
     res = await fetch(`${API_URL}/keys/${key.id}/operations/${operation.id}`, {
       method: 'PUT',
@@ -89,14 +103,7 @@ const PEER = 1;
       headers: { 'Content-Type': 'application/json' },
     });
     operation = await res.json();
-    // console.log(operation);
-    if (operation.status === 'done') {
-      signature = context.getSignature();
-      console.log('Signature:', signature.toString('hex').toUpperCase());
-      const key = ec.keyFromPublic(publicKey.slice(23));
-      console.log('Verify signature:', key.verify(data, new Signature(signature)));
-      break;
-    }
+    
     input = Buffer.from(operation.message, 'base64');
   }
 

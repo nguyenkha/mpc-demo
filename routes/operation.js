@@ -8,9 +8,9 @@ const validator = require('../middlewares/validator');
 
 const router = new Router();
 
-const ATTRIBUTES = ['id', 'name', 'type', 'status', 'createdAt', 'updatedAt'];
+const ATTRIBUTES = ['id', 'name', 'type', 'status', 'details', 'createdAt', 'updatedAt'];
 
-const PEER = 2;
+const PEER = 1;
 
 router.post('/', validator([
   body('name')
@@ -71,6 +71,8 @@ router.post('/', validator([
       throw Error('Unsupport algorithm');
   }
 
+  const output = context.step();
+
   const operation = await Operation.create({
     name: req.body.name,
     type: req.body.type,
@@ -80,7 +82,9 @@ router.post('/', validator([
     keyId: req.key.id,
   });
 
-  res.json(pick(operation, ATTRIBUTES));
+  res.json(assign(pick(operation, ATTRIBUTES), {
+    message: output.toString('base64'),
+  }));
 }));
 
 router.param('id', asyncHandler(async function (req, res, next) {
@@ -100,6 +104,13 @@ router.param('id', asyncHandler(async function (req, res, next) {
 router.get('/:id', function (req, res) {
   res.json(pick(req.operation, ATTRIBUTES));
 });
+
+router.get('/:id/signature', function (req, res) {
+  res.json({
+    signature: req.operation.signature.toString('hex'),
+  });
+});
+
 
 router.put('/:id', validator([
   body('message')
@@ -135,6 +146,9 @@ router.put('/:id', validator([
         key.publicKey = context.getPublicKey();
         key.share = context.getNewShare();
         key.status = 'ready';
+      }
+      if (type === 'sign') {
+        operation.signature = context.getSignature();
       }
     } else {
       operation.context = context.toBuffer();
