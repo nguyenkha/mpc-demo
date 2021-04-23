@@ -47,7 +47,7 @@ const PEER = 2;
     if (operation.status === 'done') {
       publicKey = context.getPublicKey();
       share = context.getNewShare();
-      console.log('Public key:', publicKey.toString('hex').toUpperCase());
+      console.log('Public key:', publicKey.toString('hex'));
       break;
     }
 
@@ -90,7 +90,7 @@ const PEER = 2;
 
     if (operation.status === 'done') {
       const signature = Buffer.from(operation.signature, 'hex');
-      console.log('Signature:', signature.toString('hex').toUpperCase());
+      console.log('Signature:', signature.toString('hex'));
       const ecKey = ec.keyFromPublic(publicKey.slice(23));
       console.log('Verify signature:', ecKey.verify(data, new Signature(signature)));
       break;
