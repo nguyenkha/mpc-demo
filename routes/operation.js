@@ -50,7 +50,7 @@ router.post('/', validator([
 
   if (found) {
     return res.status(403).json([{
-      msg: 'There is another processing operation',
+      message: 'There is another processing operation',
     }]);
   }
 
@@ -121,7 +121,7 @@ router.put('/:id', validator([
 
   if (operation.status !== 'processing') {
     return res.status(403).json([{
-      msg: 'Operation is not processing',
+      message: 'Operation is not processing',
     }]);
   }
 
@@ -131,7 +131,7 @@ router.put('/:id', validator([
     operation.context = null;
     await operation.save();
     return res.status(403).json([{
-      msg: 'Operation was cancelled due to timeout',
+      message: 'Operation was cancelled due to timeout',
     }]);
   }
 
@@ -170,7 +170,7 @@ router.delete('/:id', asyncHandler(async function (req, res) {
   const { operation } = req;
   if (operation.status !== 'processing') {
     return res.status(403).json([{
-      msg: 'Only processing operation can be cancelled',
+      message: 'Only processing operation can be cancelled',
     }]);
   }
   operation.status = 'cancelled';
