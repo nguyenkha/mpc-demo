@@ -105,7 +105,7 @@ router.param('id', asyncHandler(async function (req, res, next) {
 
 router.get('/:id', function (req, res) {
   res.json(assign(pick(req.operation, ATTRIBUTES), {
-    data: eq.operation.data.toString('hex'),
+    data: req.operation.data.toString('hex'),
     signature: req.operation.signature.toString('hex'),
   }));
 });
