@@ -184,9 +184,7 @@ router.get('/', asyncHandler(async function (req, res) {
     where: {
       keyId: key.id,
     },
-    order: [
-      ['createdAt', 'DESC'],
-    ],
+    order: [['createdAt']],
   });
   res.json(operations.map(o => pick(o, ATTRIBUTES)));
 }));

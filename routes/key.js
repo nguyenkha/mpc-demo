@@ -26,7 +26,9 @@ router.post('/', validator([
 }));
 
 router.get('/', asyncHandler(async function (req, res) {
-  const keys = await Key.findAll();
+  const keys = await Key.findAll({
+    order: [['createdAt']],
+  });
   res.json(keys.map(k => pick(k, ATTRIBUTES)));
 }));
 
