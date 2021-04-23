@@ -1,0 +1,25 @@
+version: '3'
+services:
+  mpc:
+    depends_on:
+      - db
+    ports:
+      - 3000:3000
+    image: mpc
+    build: .
+    environment:
+      DATABASE_URL: postgres://mpc:password@db:5432/mpc
+  db:
+    ports:
+      - 5432:5432
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: mpc
+      POSTGRES_PASSWORD: password
+  client:
+    image: mpc
+    depends_on:
+      - mpc
+    command: node client.js
+    environment:
+      API_URL: http://mpc:3000
