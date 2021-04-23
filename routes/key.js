@@ -45,13 +45,9 @@ router.param('id', asyncHandler(async function (req, res, next) {
 }));
 
 router.get('/:id', function (req, res) {
-  res.json(pick(req.key, ATTRIBUTES));
-});
-
-router.get('/:id/publicKey', function (req, res) {
-  res.json({
+  res.json(assign(pick(req.key, ATTRIBUTES), {
     publicKey: req.key.publicKey.toString('hex'),
-  });
+  }));
 });
 
 router.put('/:id', validator([

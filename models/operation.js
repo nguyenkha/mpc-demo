@@ -22,6 +22,9 @@ Operation.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  data: {
+    type: DataTypes.BLOB,
+  },
   details: {
     type: DataTypes.TEXT,
   },

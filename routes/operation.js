@@ -37,7 +37,7 @@ router.post('/', validator([
     }),
 ]), asyncHandler(async function (req, res) {
   const { key } = req;
-  const { type, data } = req.body;
+  const { type, data, details } = req.body;
   const { share } = key;
 
   // Check if is there any processing
@@ -75,8 +75,10 @@ router.post('/', validator([
 
   const operation = await Operation.create({
     name: req.body.name,
-    type: req.body.type,
+    type,
     status: 'processing',
+    data,
+    details,
     context: context.toBuffer(),
     options: req.body.options,
     keyId: req.key.id,
@@ -102,15 +104,11 @@ router.param('id', asyncHandler(async function (req, res, next) {
 }));
 
 router.get('/:id', function (req, res) {
-  res.json(pick(req.operation, ATTRIBUTES));
-});
-
-router.get('/:id/signature', function (req, res) {
-  res.json({
+  res.json(assign(pick(req.operation, ATTRIBUTES), {
+    data: eq.operation.data.toString('hex'),
     signature: req.operation.signature.toString('hex'),
-  });
+  }));
 });
-
 
 router.put('/:id', validator([
   body('message')
@@ -157,6 +155,7 @@ router.put('/:id', validator([
     await key.save();
     res.json(assign(pick(operation, ATTRIBUTES), {
       message: output ? output.toString('base64') : undefined,
+      signature: operation.signature ? operation.signature.toString('hex') : undefined,
     }));
   } catch (err) {
     operation.status = 'error';

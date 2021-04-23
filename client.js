@@ -74,6 +74,9 @@ const PEER = 2;
       name: 'Sign data',
       type: 'sign',
       data: data.toString('hex'),
+      details: JSON.stringify({
+        nonce: 1,
+      }),
     }),
     headers: { 'Content-Type': 'application/json' },
   });
@@ -86,11 +89,10 @@ const PEER = 2;
     const output = context.step(input);
 
     if (operation.status === 'done') {
-      res = await fetch(`${API_URL}/keys/${key.id}/operations/${operation.id}/signature`);
-      const { signature } = await res.json();
-      console.log('Signature:', signature.toUpperCase());
+      const signature = Buffer.from(operation.signature, 'hex');
+      console.log('Signature:', signature.toString('hex').toUpperCase());
       const ecKey = ec.keyFromPublic(publicKey.slice(23));
-      console.log('Verify signature:', ecKey.verify(data, new Signature(Buffer.from(signature, 'hex'))));
+      console.log('Verify signature:', ecKey.verify(data, new Signature(signature)));
       break;
     }
 
