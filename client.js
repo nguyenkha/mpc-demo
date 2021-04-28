@@ -40,8 +40,8 @@ const PEER = 2;
 
   let publicKey, share, input;
   
-  input = Buffer.from(operation.message, 'base64');
   for (;;) {
+    input = Buffer.from(operation.message, 'base64');
     const output = context.step(input);
 
     if (operation.status === 'done') {
@@ -60,7 +60,6 @@ const PEER = 2;
       headers: { 'Content-Type': 'application/json' },
     });
     operation = await res.json();
-    input = Buffer.from(operation.message, 'base64');
   }
 
   console.log('Sign');
@@ -83,9 +82,8 @@ const PEER = 2;
   operation = await res.json();
   console.log(operation);
 
-  input = Buffer.from(operation.message, 'base64');
-
   for (;;) {
+    input = Buffer.from(operation.message, 'base64');
     const output = context.step(input);
 
     if (operation.status === 'done') {
@@ -105,8 +103,6 @@ const PEER = 2;
       headers: { 'Content-Type': 'application/json' },
     });
     operation = await res.json();
-    
-    input = Buffer.from(operation.message, 'base64');
   }
 
 })().catch(console.error);
