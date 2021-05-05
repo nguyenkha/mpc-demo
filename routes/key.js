@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const asyncHandler = require('express-async-handler');
 const { body } = require('express-validator');
-const { pick } = require('lodash');
+const { pick, assign } = require('lodash');
 const Key = require('../models/key');
 const validator = require('../middlewares/validator');
 
