@@ -103,17 +103,12 @@ router.param('id', asyncHandler(async function (req, res, next) {
   next();
 }));
 
-router.get('/:id', asyncHandler(async function (req, res) {
-  const operation = await Operation.findOne({
-    where: {
-      id: req.params.id,
-    },
-  });
-  res.json(assign(pick(operation, ATTRIBUTES), {
-    data: operation.data && operation.data.toString('hex'),
-    signature: operation.signature && operation.signature.toString('hex'),
+router.get('/:id', function (req, res) {
+  res.json(assign(pick(req.operation, ATTRIBUTES), {
+    data: req.operation.data && req.operation.data.toString('hex'),
+    signature: req.operation.signature && req.operation.signature.toString('hex'),
   }));
-}));
+});
 
 router.put('/:id', validator([
   body('message')
