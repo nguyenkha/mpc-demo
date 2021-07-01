@@ -67,6 +67,16 @@ router.post('/', validator([
           break;
       }
       break;
+    case 'ed25519':
+      switch (type) {
+        case 'sign':
+          context = Context.createEddsaSignContext(PEER, share, Buffer.from(data, 'hex'), false);
+          break;
+        case 'generate':
+          context = Context.createGenerateEddsaKey(PEER);
+          break;
+      }
+      break;
     default:
       throw Error('Unsupport algorithm');
   }
