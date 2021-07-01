@@ -14,7 +14,7 @@ router.post('/', validator([
     .trim()
     .notEmpty(),
   body('algorithm')
-    .isIn(['secp256k1']),
+    .isIn(['secp256k1', 'ed25519']),
 ]), asyncHandler(async function (req, res) {
   const key = await Key.create({
     name: req.body.name,
