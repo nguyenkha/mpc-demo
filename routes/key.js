@@ -65,5 +65,6 @@ router.put('/:id', validator([
 }));
 
 router.use('/:id/operations', require('./operation'));
+router.use('/:id/backup', require('./backup'));
 
 module.exports = router;
