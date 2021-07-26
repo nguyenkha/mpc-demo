@@ -44,7 +44,7 @@ const investments = {
     },
   },
 };
-const investment = investments['UNI'];
+const investment = investments['ETH'];
 
 const headers = {
   'Content-Type': 'application/json',
@@ -114,8 +114,8 @@ async function sign(context, operation, account) {
     }
   }
 
-  console.log('\n📄 Get balance');
-  const { balance } = await (
+  console.log('\n📄 Get investment balance');
+  const { total: totalInvestment } = await (
     await fetch(`http://docker.for.mac.host.internal:3000/compound/balance`, {
       method: 'POST',
       headers,
@@ -126,7 +126,7 @@ async function sign(context, operation, account) {
     })
   ).json();
 
-  console.log(`\ncETH balance ${balance}`);
+  console.log(`\nInvestment balance ${totalInvestment}`);
 
   console.log(`\Checking allowance before deposit`);
 
@@ -143,7 +143,7 @@ async function sign(context, operation, account) {
         investment: investment,
         wallet: account.address.wallet,
         transaction: {
-          fee: '10000000000000000',
+          fee: '9000000000000000',
         },
         amount: '1000000000000000',
       }),

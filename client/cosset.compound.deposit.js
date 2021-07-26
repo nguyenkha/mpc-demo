@@ -45,7 +45,7 @@ const investments = {
   },
 };
 
-const investment = investments['UNI'];
+const investment = investments['ETH'];
 const headers = {
   'Content-Type': 'application/json',
   Authorization: `Bearer ${token}`,
@@ -114,8 +114,8 @@ async function sign(context, operation, account) {
     }
   }
 
-  console.log('\n📄 Get cETH balance');
-  const { balance } = await (
+  console.log('\n📄 Get investment balance');
+  const { total: totalInvestment } = await (
     await fetch(`http://docker.for.mac.host.internal:3000/compound/balance`, {
       method: 'POST',
       headers,
@@ -126,7 +126,7 @@ async function sign(context, operation, account) {
     })
   ).json();
 
-  console.log(`\ncETH balance ${balance}`);
+  console.log(`\nInvestment balance ${totalInvestment}`);
 
   console.log(`\Checking allowance before deposit`);
 
@@ -163,7 +163,7 @@ async function sign(context, operation, account) {
           investment: investment,
           wallet: account.address.wallet,
           transaction: {
-            fee: '10000000000000000',
+            fee: '9000000000000000',
           },
         }),
       })
@@ -238,7 +238,7 @@ async function sign(context, operation, account) {
         investment: investment,
         wallet: account.address.wallet,
         transaction: {
-          fee: '10000000000000000',
+          fee: '9000000000000000',
         },
         amount: '1000000000000000',
       }),
@@ -292,79 +292,6 @@ async function sign(context, operation, account) {
     headers,
     body: JSON.stringify({
       raw: signedTx.raw,
-    }),
-  });
-
-  console.log('\nWithdrawal\n');
-
-  const {
-    messages: [withdrawalMessage],
-  } = await (
-    await fetch(`http://docker.for.mac.host.internal:3000/compound/withdraw`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        investment: investment,
-        wallet: account.address.wallet,
-        transaction: {
-          fee: '10000000000000000',
-        },
-        amount: '1000000000000000',
-      }),
-    })
-  ).json();
-
-  console.log('\n⏳ Check and cancel current operation...');
-  await cancelPendingOperation();
-
-  const withdrawContext = Context.createEcdsaSignContext(
-    PEER,
-    Buffer.from(share, 'hex'),
-    Buffer.from(withdrawalMessage, 'hex'),
-  );
-
-  const withdrawOperation = await (
-    await fetch(`${COSSET_API_URL}/wallets/${account.address.wallet.id}/sign`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        data: withdrawalMessage,
-        details: '',
-      }),
-    })
-  ).json();
-
-  const signedWithdrawOperation = await sign(
-    withdrawContext,
-    withdrawOperation,
-    account,
-  );
-
-  console.log('\n🧾 Operation ID:', withdrawOperation.id);
-  console.log('\n📜 Signature:', signedWithdrawOperation.signature);
-
-  /*
-   * ⚠️ From this step you need to compute transaction on client side
-   * without network to construct and verify signed transaction
-   * But I'll take advantage of crypto server */
-  const signedWithdrawTx = await (
-    await fetch(`${COSSET_CRYPTO_URL}/ropsten/signature`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        raw,
-        signatures: [signedWithdrawOperation.signature],
-        wallet: account.address.wallet,
-      }),
-    })
-  ).json();
-  console.log('\n📝 Signed transaction:', signedWithdrawTx.raw);
-
-  await fetch(`${COSSET_CRYPTO_URL}/ropsten/broadcast`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      raw: signedWithdrawTx.raw,
     }),
   });
 })().catch(console.error);
